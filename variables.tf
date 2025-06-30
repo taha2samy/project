@@ -14,6 +14,6 @@ variable "ec2_key" {
 variable "location_artifact" {
     description = "The S3 bucket location for storing artifacts"
     type        = string
-    default     = "${path.module}"
+    default     = "./"
   
 }
