@@ -26,5 +26,5 @@ variable "pre_prod_instance_count" {
 variable "pre_prod_key_name" {
   description = "SSH Key Pair name for EC2 instances in pre-prod. This key must exist in your AWS account in the chosen region."
   type        = string
-  default     = "your-ssh-key-name" # REPLACE WITH YOUR SSH KEY PAIR NAME
+  default     = "tls_key_pair_ec2_pre_prod" # REPLACE WITH YOUR SSH KEY PAIR NAME
 }

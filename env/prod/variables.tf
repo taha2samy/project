@@ -27,5 +27,5 @@ variable "prod_instance_count" {
 variable "prod_key_name" {
   description = "SSH Key Pair name for EC2 instances in prod. This key must exist in your AWS account in the chosen region."
   type        = string
-  default     = "REPLACE_ME_YOUR_SSH_KEY_NAME" # REPLACE_ME: Your SSH Key Pair name
+  default     = "tls_key_pair_ec2_prod" # REPLACE_ME: Your SSH Key Pair name
 }
