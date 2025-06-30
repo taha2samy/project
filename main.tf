@@ -87,11 +87,11 @@ resource "tls_private_key" "pre_prod_key" {
 
 }
 
-resource "local_file" "private_key" {
+resource "local_file" "private_key_pre_prod" {
   content  = tls_private_key.pre_prod_key.private_key_pem
   filename = "${var.location_artifact}/pre_prod/private_key.pem"
 }
-resource "local_file" "private_key" {
+resource "local_file" "private_key_prod" {
   content  = tls_private_key.prod_key.private_key_pem
   filename = "${var.location_artifact}/prod/private_key.pem"
 }
