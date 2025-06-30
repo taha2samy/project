@@ -1,10 +1,6 @@
 
 
-variable "region" {
-    description = "The AWS region to deploy resources in"
-    default     = "eu-west-1"
-  
-}
+
 
 provider "aws" {
   region = var.region
@@ -61,7 +57,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 }
 
 resource "local_file" "backend_config" {
-  filename = "backend-config.hcl"
+  filename = "${var.location_artifact}/backend-config.hcl"
   content  = <<EOT
 bucket         = "${aws_s3_bucket.backend_bucket.id}"
 region         = "${var.region}"
@@ -78,4 +74,20 @@ output "config_backend" {
         encrypt        = true
     }
   
+}
+
+resource "tls_private_key" "name" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+
+}
+
+resource "local_file" "private_key" {
+  content  = tls_private_key.name.private_key_pem
+  filename = "${var.location_artifact}/private_key.pem"
+}
+
+resource "aws_key_pair" "key_pair" {
+  key_name   = var.ec2_key
+  public_key = tls_private_key.name.public_key_openssh
 }
