@@ -1,1 +1,4 @@
-/.terraform/
+*.terraform/
+readme.md
+plan.out
+plan.json
