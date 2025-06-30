@@ -13,7 +13,7 @@ variable "pre_prod_vpc_cidr" {
 variable "pre_prod_public_subnet_cidrs" {
   description = "List of CIDR blocks for pre-prod public subnets."
   type        = list(string)
-  default     = ["10.0.1.0/24"] # Required: 1 public subnet for pre-prod
+  default     = ["10.0.1.0/24"] 
 }
 
 variable "pre_prod_instance_count" {
