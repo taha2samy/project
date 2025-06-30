@@ -76,18 +76,32 @@ output "config_backend" {
   
 }
 
-resource "tls_private_key" "name" {
+resource "tls_private_key" "prod_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+
+}
+resource "tls_private_key" "pre_prod_key" {
   algorithm = "RSA"
   rsa_bits  = 4096
 
 }
 
 resource "local_file" "private_key" {
-  content  = tls_private_key.name.private_key_pem
-  filename = "${var.location_artifact}/private_key.pem"
+  content  = tls_private_key.pre_prod_key.private_key_pem
+  filename = "${var.location_artifact}/pre_prod/private_key.pem"
+}
+resource "local_file" "private_key" {
+  content  = tls_private_key.prod_key.private_key_pem
+  filename = "${var.location_artifact}/prod/private_key.pem"
 }
 
-resource "aws_key_pair" "key_pair" {
-  key_name   = var.ec2_key
-  public_key = tls_private_key.name.public_key_openssh
+
+resource "aws_key_pair" "key_pair_ec2_pre_prod" {
+  key_name   = "${var.ec2_key}_pre_prod"
+  public_key = tls_private_key.pre_prod_key.public_key_openssh
+}
+resource "aws_key_pair" "key_pair_ec2_prod" {
+  key_name   = "${var.ec2_key}_prod"
+  public_key = tls_private_key.pre_prod_key.public_key_openssh
 }
