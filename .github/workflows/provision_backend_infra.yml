@@ -1,0 +1,54 @@
+name: Provision Terraform Remote Backend
+
+on:
+  push:
+    branches:
+      - backend
+      - production
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: 'eu-west-1'
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    container:
+      image: hashicorp/terraform:latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_S3_NAME: 'tf-state-bucket-backend-and-dynamodb'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set environment variable
+        run: echo "TF_VAR_s3_bucket_name_and_dynamodb_table_name=${AWS_S3_NAME}" >> $GITHUB_ENV
+
+      - name: Set up Terraform
+        run: terraform init
+
+      - name: Import S3 bucket
+        run: terraform import aws_s3_bucket.backend_bucket ${AWS_S3_NAME}
+
+      - name: Import Public Access Block
+        run: terraform import aws_s3_bucket_public_access_block.block_public_access ${AWS_S3_NAME}
+
+      - name: Import DynamoDB table
+        run: terraform import aws_dynamodb_table.terraform_locks ${AWS_S3_NAME}
+
+      - name: Validate Terraform configuration
+        run: terraform validate
+
+      - name: Apply Terraform configuration
+        run: terraform apply -auto-approve
+
+      - name: Wait for resources to settle
+        run: sleep 60
+
+      - name: Destroy Terraform resources
+        run: terraform destroy -auto-approve
