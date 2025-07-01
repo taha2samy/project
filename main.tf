@@ -1,21 +1,20 @@
 
 
+variable "s3_bucket_name_and_dynamodb_table_name" {
+  description = "Name of the S3 bucket to be created for Terraform state storage"
+  type        = string
 
+  
+}
 
 provider "aws" {
   region = var.region
 }
 
 
-resource "random_string" "prefix" {
-  
-  length  = 8
-  special = false
-  upper = false
-}
 resource "aws_s3_bucket" "backend_bucket" {
     
-  bucket = "tf-state-${random_string.prefix.result}"
+  bucket = var.s3_bucket_name_and_dynamodb_table_name
   
 }
 resource "aws_s3_bucket_public_access_block" "block_public_access" {
@@ -46,7 +45,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
 
 resource "aws_dynamodb_table" "terraform_locks" {
 
-  name         = "terraform-up-and-running-locks-${random_string.prefix.result}"
+  name         = var.s3_bucket_name_and_dynamodb_table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
