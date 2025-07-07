@@ -64,7 +64,7 @@ module "pre_prod_compute" {
   public_subnet_ids   = module.pre_prod_network.public_subnet_ids
   instance_count      = var.pre_prod_instance_count
   ami_id              = module.ami-amazon_linux.id
-  key_name            = module.key_pair
+  key_name            = module.key_pair.key_name
   instance_type       = "t2.micro" 
   user_data           = templatefile("${path.module}/../scripts/django.sh.tpl", {
     DB_NAME     = "${var.DB_NAME}",
