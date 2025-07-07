@@ -5,7 +5,7 @@ variable "key_name" {
 variable "key_path" {
   description = "The path to the private key file"
   type        = string
-  default     = "${path.module}/pre_pod_ec2_key.pem"
+  default     = "pre_pod_ec2_key.pem"
 }
 
 variable "rsa_bits" {
