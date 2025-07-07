@@ -1,5 +1,5 @@
 terraform {
   backend "s3" {
-    key = "env/pre-prod/terraform.tfstate"
+    key = "env/prod/terraform.tfstate"
   }
 }
