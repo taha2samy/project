@@ -1,50 +1,43 @@
-name: Provision Terraform Remote Backend
+name: Deploy to Pre-Prod Environment
 
 on:
   push:
     branches:
-      - backend
-      - production
-
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: 'eu-west-1'
+      - producation
 
 jobs:
-  provision:
+  deploy:
+    name: 'Terraform Apply on Pre-Prod'
     runs-on: ubuntu-latest
+    
     container:
-      image: hashicorp/terraform:latest
+      image: hashicorp/terraform:1.8.0
+
     env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: eu-west-1
+
+    defaults:
+      run:
+        working-directory: env/pre-prod
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        
-      - name: Set environment variable
-        run: echo "TF_VAR_s3_bucket_name_and_dynamodb_table_name=${AWS_S3_NAME}" >> $GITHUB_ENV
+        uses: actions/checkout@v4
 
-      - name: Set up Terraform
-        run: terraform init
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="../backend-config.hcl"
 
-      - name: Import S3 bucket
-        run: terraform import aws_s3_bucket.backend_bucket ${AWS_S3_NAME}
-
-      - name: Import Public Access Block
-        run: terraform import aws_s3_bucket_public_access_block.block_public_access ${AWS_S3_NAME}
-
-      - name: Import DynamoDB table
-        run: terraform import aws_dynamodb_table.terraform_locks ${AWS_S3_NAME}
-
-      - name: Validate Terraform configuration
+      - name: Terraform Validate
+        id: validate
         run: terraform validate
 
-      - name: Apply Terraform configuration
-        run: terraform apply -auto-approve
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -input=false
 
-      - name: Wait for resources to settle
-        run: sleep 60
-
-      - name: Destroy Terraform resources
-        run: terraform destroy -auto-approve
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -input=false
