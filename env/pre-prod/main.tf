@@ -44,15 +44,7 @@ module "db_instance" {
   allocated_storage   = 10
 }
 
-data "aws_ami" "latest_amazon_linux" {
-  most_recent = true
-  owners      = ["amazon"]
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
 module "pre_prod_network" {
   source = "../../modules/network"
 
@@ -63,22 +55,7 @@ module "pre_prod_network" {
  
 }
 
-resource "tls_private_key" "ec2_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-  
-}
-resource "local_file" "privatekey" {
-  
-  filename = "${path.module}/ec2_key.pem"
-  content  = tls_private_key.ec2_key.private_key_pem
-  file_permission = "0400"
-}
-resource "aws_key_pair" "ec2_key_pair" {
-  key_name   = "ec2_key_pair_pre_prod"
-  public_key = tls_private_key.ec2_key.public_key_openssh
-  
-}
+
 module "pre_prod_compute" {
   source = "../../modules/compute"
 
@@ -86,8 +63,8 @@ module "pre_prod_compute" {
   vpc_id              = module.pre_prod_network.vpc_id
   public_subnet_ids   = module.pre_prod_network.public_subnet_ids
   instance_count      = var.pre_prod_instance_count
-  ami_id              = data.aws_ami.latest_amazon_linux.id
-  key_name            = aws_key_pair.ec2_key_pair.key_name
+  ami_id              = module.ami-amazon_linux.id
+  key_name            = module.aws_key_pair
   instance_type       = "t2.micro" 
   user_data           = templatefile("${path.module}/../scripts/django.sh.tpl", {
     DB_NAME     = "${var.DB_NAME}",
