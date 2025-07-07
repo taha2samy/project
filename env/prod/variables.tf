@@ -1,31 +1,63 @@
+
 variable "aws_region" {
-  description = "AWS region for the prod environment."
+  description = "AWS region for the pre-prod environment."
   type        = string
-  default     = "us-east-1" # UPDATE_THIS: Adjust to your desired region (e.g., "eu-central-1")
+  default     = "eu-west-1" # Change to your desired region
 }
 
-variable "prod_vpc_cidr" {
-  description = "CIDR block for the prod VPC."
+variable "pre_prod_vpc_cidr" {
+  description = "CIDR block for the pre-prod VPC."
   type        = string
-  default     = "10.10.0.0/16" # Different CIDR to isolate from pre-prod
+  default     = "10.0.0.0/16"
 }
 
-variable "prod_public_subnet_cidrs" {
-  description = "List of CIDR blocks for prod public subnets."
+variable "pre_prod_public_subnet_cidrs" {
+  description = "List of CIDR blocks for pre-prod public subnets."
   type        = list(string)
-  default     = ["10.10.1.0/24", "10.10.2.0/24"] # Required: 2 public subnets for prod
+  default     = ["10.0.1.0/24","10.0.2.0/24"] 
 }
 
-variable "prod_instance_count" {
-  description = "Number of EC2 instances for prod."
+variable "pre_prod_instance_count" {
+  description = "Number of EC2 instances for pre-prod."
   type        = number
-  default     = 3 
+  default     = 1 # Required: 1 t2.micro instance for pre-prod
 }
 
 
 
-variable "prod_key_name" {
-  description = "SSH Key Pair name for EC2 instances in prod. This key must exist in your AWS account in the chosen region."
+variable "DB_NAME" {
+  description = "Database name for the prod environment."
   type        = string
-  default     = "tls_key_pair_ec2_prod" # REPLACE_ME: Your SSH Key Pair name
+  default     = "pre_prod_db" # Required: Name of the database for prod
+}
+variable "DB_USER" {
+  description = "Database user for the prod environment."
+  type        = string
+  default     = "pre_prod_user"
+  
+}
+
+variable "DB_PASSWORD" {
+  description = "Database password for the prod environment."
+  type        = string
+  default     = "pre_prod_password" # Required: Password for the database user
+  
+}
+variable "DB_PORT" {
+  description = "Database port for the prod environment."
+  type        = number
+  default     = 5432 
+  
+}
+variable REDIS_PASSWORD {
+  description = "Password for Redis in the pre-prod environment."
+  type        = string
+  default     = "pre_prod_redis_password" # Required: Password for Redis
+}
+
+variable "REDIS_PORT" {
+  description = "Port for Redis in the pre-prod environment."
+  type        = number
+  default     = 6379 # Default Redis port
+  
 }

@@ -1,4 +1,4 @@
-name: Deploy to Pre-Prod Environment
+name: Deploy prod Environment
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: env/pre-prod
+        working-directory: env/prod
 
     steps:
       - name: Checkout code
