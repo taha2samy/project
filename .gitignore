@@ -1,11 +1,8 @@
-<<<<<<< HEAD
 *.terraform/
 readme.md
 plan.out
 plan.json
-=======
 /.terraform/
 .pem
 .tfstate
 .tfstate.backup
->>>>>>> backend

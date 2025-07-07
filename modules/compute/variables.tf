@@ -4,7 +4,11 @@ variable "env" {
   description = "Environment name (e.g., pre-prod or prod) for resource naming."
   type        = string
 }
-
+variable "user_data" {
+  description = "User data script to run on instance launch (e.g., for initial setup)."
+  type        = string
+  
+}
 variable "vpc_id" {
   description = "The ID of the VPC where EC2 instances will be launched."
   type        = string

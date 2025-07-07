@@ -18,6 +18,12 @@ resource "aws_security_group" "ec2_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+    ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -39,8 +45,9 @@ resource "aws_instance" "app_server" {
   key_name      = var.key_name
   subnet_id     = var.public_subnet_ids[count.index % length(var.public_subnet_ids)]
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  user_data     = var.user_data
   associate_public_ip_address = true
-
+  user_data_replace_on_change = true
   tags = {
     Name = "poc-${var.env}-instance-${count.index + 1}"
     Env  = var.env

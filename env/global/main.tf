@@ -1,21 +1,19 @@
 
 
-variable "s3_bucket_name_and_dynamodb_table_name" {
-  description = "Name of the S3 bucket to be created for Terraform state storage"
-  type        = string
-
-  
-}
-
 provider "aws" {
   region = var.region
 }
 
-
+resource "random_string" "Prefix" {
+  length  = 10
+  special = false
+  upper   = false
+  lower   = true
+  numeric = false
+}
 resource "aws_s3_bucket" "backend_bucket" {
     
-  bucket = var.s3_bucket_name_and_dynamodb_table_name
-  
+  bucket = "${random_string.Prefix.result}-backend-bucket"
 }
 resource "aws_s3_bucket_public_access_block" "block_public_access" {
     bucket = aws_s3_bucket.backend_bucket.id
@@ -45,7 +43,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
 
 resource "aws_dynamodb_table" "terraform_locks" {
 
-  name         = var.s3_bucket_name_and_dynamodb_table_name
+  name         = "${random_string.Prefix.result}-dynamodb-locks"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -56,7 +54,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 }
 
 resource "local_file" "backend_config" {
-  filename = "${var.location_artifact}/backend-config.hcl"
+  filename = "${path.module}/../backend-config.hcl"
   content  = <<EOT
 bucket         = "${aws_s3_bucket.backend_bucket.id}"
 region         = "${var.region}"
@@ -75,32 +73,3 @@ output "config_backend" {
   
 }
 
-resource "tls_private_key" "prod_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-
-}
-resource "tls_private_key" "pre_prod_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-
-}
-
-resource "local_file" "private_key_pre_prod" {
-  content  = tls_private_key.pre_prod_key.private_key_pem
-  filename = "${var.location_artifact}/pre_prod/private_key.pem"
-}
-resource "local_file" "private_key_prod" {
-  content  = tls_private_key.prod_key.private_key_pem
-  filename = "${var.location_artifact}/prod/private_key.pem"
-}
-
-
-resource "aws_key_pair" "key_pair_ec2_pre_prod" {
-  key_name   = "${var.ec2_key}_pre_prod"
-  public_key = tls_private_key.pre_prod_key.public_key_openssh
-}
-resource "aws_key_pair" "key_pair_ec2_prod" {
-  key_name   = "${var.ec2_key}_prod"
-  public_key = tls_private_key.pre_prod_key.public_key_openssh
-}
